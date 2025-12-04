@@ -1,0 +1,1 @@
+Gerar PDF usando ferramenta externa com base nos dados JSON.

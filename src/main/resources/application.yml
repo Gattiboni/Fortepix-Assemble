@@ -1,0 +1,17 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/fortepix
+    username: fortepix
+    password: fortepix
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+fortepix:
+  jwt:
+    secret: CHANGE_ME_SUPER_SECRET_KEY
+    expiration-seconds: 3600

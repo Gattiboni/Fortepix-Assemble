@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fortepix-python
+  labels:
+    app: fortepix-python
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fortepix-python
+  template:
+    metadata:
+      labels:
+        app: fortepix-python
+    spec:
+      containers:
+        - name: fortepix-python
+          image: gcr.io/SEU_PROJETO/fortepix-python:beta
+          ports:
+            - containerPort: 8000

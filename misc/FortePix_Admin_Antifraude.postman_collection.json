@@ -1,0 +1,37 @@
+{
+    "info": {
+        "name": "FortePix Admin Antifraude",
+        "_postman_id": "fortepix-collection-123",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Listar Logs",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/admin/antifraude/logs"
+            }
+        },
+        {
+            "name": "Estat\u00edsticas por Risco (JSON)",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/admin/antifraude/json/graficos/risco"
+            }
+        },
+        {
+            "name": "Estat\u00edsticas por Dia (JSON)",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/admin/antifraude/json/graficos/dias"
+            }
+        },
+        {
+            "name": "Exportar CSV",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/admin/antifraude/logs/export"
+            }
+        }
+    ]
+}

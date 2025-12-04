@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fortepix-ingress
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+spec:
+  rules:
+    - host: api.fortepix.seudominio.com
+      http:
+        paths:
+          - path: /java
+            pathType: Prefix
+            backend:
+              service:
+                name: fortepix-java-svc
+                port:
+                  number: 8080
+          - path: /python
+            pathType: Prefix
+            backend:
+              service:
+                name: fortepix-python-svc
+                port:
+                  number: 8000

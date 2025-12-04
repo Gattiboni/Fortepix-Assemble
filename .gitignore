@@ -1,0 +1,87 @@
+###############################################
+# JAVA / MAVEN / SPRING BOOT
+###############################################
+
+# Maven target directory
+/target/
+/mvnw
+/mvnw.cmd
+/.mvn/wrapper/maven-wrapper.jar
+/.mvn/wrapper/maven-wrapper.properties
+
+# Compiled class files
+*.class
+
+# Package files
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+
+###############################################
+# IDEs
+###############################################
+
+# VSCode
+.vscode/
+.history/
+*.code-workspace
+
+# IntelliJ
+.idea/
+*.iml
+out/
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+###############################################
+# OS LIXO
+###############################################
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Mac
+.DS_Store
+
+###############################################
+# PYTHON (porque esse Frankeinstein tem tudo)
+###############################################
+
+__pycache__/
+*.pyc
+
+###############################################
+# NODE / FLUTTER (porque sim, eles enfiaram .jsx)
+###############################################
+
+node_modules/
+pubspec.lock
+.packages
+.dart_tool/
+build/
+
+###############################################
+# TERRAFORM / DEVOPS LIXO SOLTO
+###############################################
+
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+
+###############################################
+# BACKUP DE ESTAGIÁRIO
+###############################################
+
+*.bak
+*.tmp
+*.old
+*~

@@ -1,0 +1,201 @@
+FORTPIX-API-FINAL/
+│
+├── pom.xml
+│   -> Arquivo de configuração Maven (dependências, build, plugins).
+│
+├── README_UNIFICADO.md
+│   -> Resumo da API final: módulos, segurança, antifraude, 2FAT, JWT, etc.
+│
+├── docs/
+│   ├── flutter-error-mapping.md
+│   │   -> Guia de como o app Flutter deve interpretar os códigos FORTEPIX_*
+│   │      (telas, textos, fluxos de erro, antifraude, 2FAT inválido/expirado,
+│   │       validação de campos, etc.).
+│   │
+│   └── API_FLOW_PIX_2ETAPAS.md
+│       -> Documento descrevendo o fluxo Pix em 2 etapas:
+│          1) criação/antifraude/intenção
+│          2) confirmação com 2FAT e liquidação.
+│
+├── src/
+│   └── main/
+│       ├── java/
+│       │   └── com/
+│       │       └── fortepix/
+│       │           ├── api/
+│       │           │   ├── error/
+│       │           │   │   ├── ErrorCode.java
+│       │           │   │   │   -> Enum com todos os códigos de erro padrão:
+│       │           │   │   │      FORTEPIX_SALDO_INSUFICIENTE,
+│       │           │   │   │      FORTEPIX_PIX_BLOQUEADO_ALTO_RISCO,
+│       │           │   │   │      FORTEPIX_PIX_BLOQUEIO_PREVENTIVO,
+│       │           │   │   │      FORTEPIX_2FAT_INVALIDO,
+│       │           │   │   │      FORTEPIX_2FAT_EXPIRADO,
+│       │           │   │   │      FORTEPIX_VALIDACAO, etc.
+│       │           │   │   │
+│       │           │   │   ├── ErrorResponse.java
+│       │           │   │   │   -> Modelo JSON de resposta de erro:
+│       │           │   │   │      timestamp, code, message, details, path.
+│       │           │   │   │
+│       │           │   │   └── GlobalExceptionHandler.java
+│       │           │   │       -> @RestControllerAdvice que captura exceções
+│       │           │   │          (saldo insuficiente, alto risco, 2FAT inválido,
+│       │           │   │           validação de Bean Validation, etc.) e converte
+│       │           │   │          para ErrorResponse com ErrorCode.
+│       │           │   │
+│       │           │   └── security/
+│       │           │       ├── CustomUserDetailsService.java
+│       │           │       │   -> Integração do Spring Security com Usuario:
+│       │           │       │      carrega usuário por e-mail e monta ROLE_PERFIL.
+│       │           │       │
+│       │           │       ├── JwtAuthenticationFilter.java
+│       │           │       │   -> Filtro OncePerRequestFilter:
+│       │           │       │      lê Authorization: Bearer <token>,
+│       │           │       │      valida JWT e injeta Authentication no contexto.
+│       │           │       │
+│       │           │       ├── JwtService.java
+│       │           │       │   -> Serviço de geração e validação de JWT:
+│       │           │       │      subject = e-mail, claims = perfil + usuarioId,
+│       │           │       │      expiração configurável por minutos.
+│       │           │       │
+│       │           │       └── SecurityConfig.java
+│       │           │           -> Configuração Spring Security:
+│       │           │              - habilita JWT stateless
+│       │           │              - libera /api/auth/**, /actuator/**, /swagger/**
+│       │           │              - protege o restante com authenticated()
+│       │           │
+│       │           └── pix/
+│       │               ├── controller/
+│       │               │   ├── AuthController.java
+│       │               │   │   -> Endpoints de autenticação:
+│       │               │   │      - POST /api/auth/login
+│       │               │   │           recebe email+senha, autentica e devolve JWT,
+│       │               │   │           perfil e usuarioId.
+│       │               │   │      - POST /api/auth/criar-admin-inicial
+│       │               │   │           cria o primeiro ADMIN (bootstrap controlado).
+│       │               │   │
+│       │               │   ├── PixController.java
+│       │               │   │   -> Endpoints de fluxo Pix (exemplos típicos):
+│       │               │   │      - POST /api/pix/usuarios/{id}/intencao
+│       │               │   │           cria intenção de Pix, roda antifraude,
+│       │               │   │           pode devolver risco alto/bloqueio preventivo.
+│       │               │   │      - GET /api/pix/transacoes/{id}
+│       │               │   │           consulta status da transação.
+│       │               │   │
+│       │               │   └── TwoFactorController.java
+│       │               │       -> Endpoints relacionados ao 2FAT:
+│       │               │          - iniciar/envio do código (e-mail/SMS)
+│       │               │          - confirmar código e liberar liquidação do Pix.
+│       │               │
+│       │               ├── dto/
+│       │               │   ├── AuthRequestDTO.java
+│       │               │   │   -> { email, senha } com validação (@Email, @NotBlank).
+│       │               │   │
+│       │               │   ├── AuthResponseDTO.java
+│       │               │   │   -> { token, perfil, usuarioId } resposta do login.
+│       │               │   │
+│       │               │   ├── PixRequestDTO.java
+│       │               │   │   -> Dados de criação de Pix:
+│       │               │   │      chaveDestino, valor (> 0.01), descricao opcional,
+│       │               │   │      com Bean Validation.
+│       │               │   │
+│       │               │   ├── PixResponseDTO.java
+│       │               │   │   -> Resposta da criação/consulta do Pix
+│       │               │   │      (id, status, valor, mensagens, etc.).
+│       │               │   │
+│       │               │   ├── TwoFactorRequestDTO.java
+│       │               │   │   -> Dados para disparar/envio do código 2FAT
+│       │               │   │      (ex.: idTransacao, canal, etc.).
+│       │               │   │
+│       │               │   └── TwoFactorValidationDTO.java
+│       │               │       -> Dados para validar o 2FAT:
+│       │               │          (idTransacao, codigo2Fat, etc.).
+│       │               │
+│       │               ├── exception/
+│       │               │   ├── PixBloqueadoPorAltoRiscoException.java
+│       │               │   │   -> Lançada quando antifraude classifica como alto risco
+│       │               │   │      e bloqueia a transação (ErrorCode FORTEPIX_PIX_BLOQUEADO_ALTO_RISCO).
+│       │               │   │
+│       │               │   ├── PixBloqueioPreventivoException.java
+│       │               │   │   -> Lançada quando antifraude aplica bloqueio preventivo
+│       │               │   │      (ErrorCode FORTEPIX_PIX_BLOQUEIO_PREVENTIVO).
+│       │               │   │
+│       │               │   ├── SaldoInsuficienteException.java
+│       │               │   │   -> Saldo insuficiente no momento da reserva/liquidação
+│       │               │   │      (ErrorCode FORTEPIX_SALDO_INSUFICIENTE).
+│       │               │   │
+│       │               │   ├── TwoFactorCodigoExpiradoException.java
+│       │               │   │   -> Código 2FAT expirado (ErrorCode FORTEPIX_2FAT_EXPIRADO).
+│       │               │   │
+│       │               │   └── TwoFactorCodigoInvalidoException.java
+│       │               │       -> Código 2FAT inválido (ErrorCode FORTEPIX_2FAT_INVALIDO).
+│       │               │
+│       │               ├── model/
+│       │               │   ├── Conta.java
+│       │               │   │   -> Entidade de conta (saldo, limite, relacionamento
+│       │               │   │      com Usuario, etc.).
+│       │               │   │
+│       │               │   ├── PixTransacao.java
+│       │               │   │   -> Entidade que representa a transação Pix:
+│       │               │   │      id, valor, status, risco, flags antifraude,
+│       │               │   │      relacionamento com Conta/Usuario.
+│       │               │   │
+│       │               │   ├── TwoFactorToken.java
+│       │               │   │   -> Código 2FAT (token, expiração, usado/nao usado,
+│       │               │   │      vínculo com transação/usuário).
+│       │               │   │
+│       │               │   └── Usuario.java
+│       │               │       -> Usuário FortePix:
+│       │               │          id, nome, email, senha (BCrypt), perfil (CLIENTE, ADMIN, etc.).
+│       │               │
+│       │               ├── repository/
+│       │               │   ├── ContaRepository.java
+│       │               │   │   -> CRUD de Conta (extends JpaRepository).
+│       │               │   │
+│       │               │   ├── PixTransacaoRepository.java
+│       │               │   │   -> CRUD + consultas por status, usuário, etc.
+│       │               │   │
+│       │               │   ├── TwoFactorTokenRepository.java
+│       │               │   │   -> Busca tokens por transação, código, expirados etc.
+│       │               │   │
+│       │               │   └── UsuarioRepository.java
+│       │               │       -> CRUD de Usuario + findByEmail(String email).
+│       │               │
+│       │               └── service/
+│       │                   ├── AntifraudeService.java
+│       │                   │   -> Motor antifraude:
+│       │                   │      consulta blacklist, aplica regras de risco e
+│       │                   │      define se é alto risco, bloqueio preventivo etc.
+│       │                   │
+│       │                   ├── ContaService.java
+│       │                   │   -> Regras de conta: criar, atualizar saldo, etc.
+│       │                   │
+│       │                   ├── LogAntifraudeService.java
+│       │                   │   -> Registro de logs das decisões antifraude
+│       │                   │      (risco alto, bloqueio preventivo, aprovado).
+│       │                   │
+│       │                   ├── PixService.java
+│       │                   │   -> Orquestrador do fluxo Pix:
+│       │                   │      - cria intenção
+│       │                   │      - chama antifraude
+│       │                   │      - interage com 2FAT
+│       │                   │      - faz liquidação quando autorizado.
+│       │                   │
+│       │                   └── TwoFactorService.java
+│       │                       -> Geração, envio (integração futura e-mail/SMS),
+│       │                          validação, expiração e uso do 2FAT.
+│       │
+│       └── resources/
+│           ├── application.properties
+│           │   -> Configurações da aplicação (porta, banco, JWT, etc.).
+│           │
+│           ├── data.sql
+│           │   -> Carga inicial de dados (usuário admin de teste, contas,
+│           │      possíveis chaves Pix, etc.).
+│           │
+│           └── schema.sql
+│               -> Script de criação de tabelas, índices e constraints da base.
+│
+└── (ZIP gerado)
+    fortepix-api-final.zip
+    -> Pacote compactado com toda essa estrutura pronta para uso.

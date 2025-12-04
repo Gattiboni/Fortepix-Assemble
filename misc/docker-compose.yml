@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  fortepix-java:
+    build: ./backend-java
+    ports:
+      - "8080:8080"
+  fortepix-python:
+    build: ./backend-python
+    ports:
+      - "8000:8000"

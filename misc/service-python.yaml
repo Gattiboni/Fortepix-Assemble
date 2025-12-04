@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fortepix-python-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: fortepix-python
+  ports:
+    - port: 8000
+      targetPort: 8000
