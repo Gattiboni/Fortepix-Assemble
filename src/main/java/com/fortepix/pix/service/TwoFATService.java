@@ -1,4 +1,4 @@
-package com.fortepix.seguranca;
+package com.fortepix.pix.service;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -23,8 +23,10 @@ public class TwoFATService {
 
     public boolean validarCodigo(String identificadorUsuario, String codigoInformado) {
         RegistroCodigo registro = codigos.get(identificadorUsuario);
-        if (registro == null) return false;
-        if (!registro.codigo().equals(codigoInformado)) return false;
+        if (registro == null)
+            return false;
+        if (!registro.codigo().equals(codigoInformado))
+            return false;
         Instant agora = Instant.now();
         if (agora.isAfter(registro.criadoEm().plusSeconds(validadeSegundos))) {
             codigos.remove(identificadorUsuario);
@@ -34,5 +36,6 @@ public class TwoFATService {
         return true;
     }
 
-    private record RegistroCodigo(String codigo, Instant criadoEm) {}
+    private record RegistroCodigo(String codigo, Instant criadoEm) {
+    }
 }

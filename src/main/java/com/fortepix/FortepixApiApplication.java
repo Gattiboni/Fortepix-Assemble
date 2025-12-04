@@ -1,11 +1,5 @@
-package com.fortepix.api;
+package com.fortepix;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-@SpringBootApplication
-public class FortePixApiApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(FortePixApiApplication.class, args);
-    }
+public class FortepixApiApplication {
+    // Deprecated duplicate main class; kept as empty to avoid conflict.
 }

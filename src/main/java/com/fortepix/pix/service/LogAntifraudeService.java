@@ -1,7 +1,7 @@
-package com.fortepix.seguranca;
+package com.fortepix.pix.service;
 
-import com.fortepix.dominio.LogAntifraude;
-import com.fortepix.repositorio.LogAntifraudeRepository;
+import com.fortepix.pix.model.LogAntifraude;
+import com.fortepix.pix.repository.LogAntifraudeRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,11 +17,11 @@ public class LogAntifraudeService {
     }
 
     public void registrar(String documentoUsuario,
-                          String chaveDestino,
-                          BigDecimal valor,
-                          String resultadoRisco,
-                          int scoreCalculado,
-                          String origem) {
+            String chaveDestino,
+            BigDecimal valor,
+            String resultadoRisco,
+            int scoreCalculado,
+            String origem) {
 
         LogAntifraude log = new LogAntifraude();
         log.setDocumentoUsuario(documentoUsuario);

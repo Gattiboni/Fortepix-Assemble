@@ -1,4 +1,4 @@
-package com.fortepix.api.pix;
+package com.fortepix.pix.dto;
 
 import java.math.BigDecimal;
 
@@ -7,10 +7,27 @@ public class PixRequest {
     private BigDecimal valor;
     private String descricao;
 
-    public String getChaveDestino() { return chaveDestino; }
-    public void setChaveDestino(String chaveDestino) { this.chaveDestino = chaveDestino; }
-    public BigDecimal getValor() { return valor; }
-    public void setValor(BigDecimal valor) { this.valor = valor; }
-    public String getDescricao() { return descricao; }
-    public void setDescricao(String descricao) { this.descricao = descricao; }
+    public String getChaveDestino() {
+        return chaveDestino;
+    }
+
+    public void setChaveDestino(String chaveDestino) {
+        this.chaveDestino = chaveDestino;
+    }
+
+    public BigDecimal getValor() {
+        return valor;
+    }
+
+    public void setValor(BigDecimal valor) {
+        this.valor = valor;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
 }

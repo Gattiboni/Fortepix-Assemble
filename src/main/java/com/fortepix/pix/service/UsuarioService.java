@@ -1,4 +1,6 @@
-package com.fortepix.api.usuario;
+package com.fortepix.pix.service;
+
+import com.fortepix.pix.repository.UsuarioRepository;
 
 import org.springframework.stereotype.Service;
 
@@ -14,13 +16,21 @@ public class UsuarioService {
         this.repo = repo;
     }
 
-    public long total() { return repo.count(); }
+    public long total() {
+        return repo.count();
+    }
 
-    public long online() { return repo.countByStatus("ONLINE"); }
+    public long online() {
+        return repo.countByStatus("ONLINE");
+    }
 
-    public long offline() { return repo.countByStatus("OFFLINE"); }
+    public long offline() {
+        return repo.countByStatus("OFFLINE");
+    }
 
-    public long reativadosPorVersaoApi() { return repo.countByReativadoPorVersaoApi(true); }
+    public long reativadosPorVersaoApi() {
+        return repo.countByReativadoPorVersaoApi(true);
+    }
 
     public Map<String, Long> porCartela() {
         Map<String, Long> mapa = new HashMap<>();

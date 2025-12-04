@@ -1,4 +1,6 @@
-package com.fortepix.api.usuario;
+package com.fortepix.pix.controller;
+
+import com.fortepix.pix.service.UsuarioService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,8 +26,7 @@ public class UsuarioAdminController {
                 "online", service.online(),
                 "offline", service.offline(),
                 "reativadosPorVersaoApi", service.reativadosPorVersaoApi(),
-                "porCartela", service.porCartela()
-        );
+                "porCartela", service.porCartela());
         return ResponseEntity.ok(body);
     }
 }

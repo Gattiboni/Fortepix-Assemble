@@ -1,4 +1,4 @@
-package com.fortepix.seguranca;
+package com.fortepix.pix.service;
 
 import java.math.BigDecimal;
 import java.util.Set;
@@ -16,8 +16,8 @@ public class AntifraudeService {
     }
 
     public AntifraudeService(Set<String> chavesAltoRisco,
-                             BigDecimal limiteBloqueioPreventivo,
-                             BigDecimal limiteAltoRisco) {
+            BigDecimal limiteBloqueioPreventivo,
+            BigDecimal limiteAltoRisco) {
         this.chavesAltoRisco = chavesAltoRisco;
         this.LIMITE_BLOQUEIO_PREVENTIVO = limiteBloqueioPreventivo;
         this.LIMITE_ALTO_RISCO = limiteAltoRisco;

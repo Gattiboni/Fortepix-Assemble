@@ -1,6 +1,8 @@
-package com.fortepix.config;
+package com.fortepix.api.security;
 
-import com.fortepix.seguranca.*;
+import com.fortepix.pix.service.AntifraudeService;
+import com.fortepix.pix.service.TwoFATService;
+import com.fortepix.pix.service.CruzamentoDadosService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,8 +19,7 @@ public class SegurancaConfig {
         return new AntifraudeService(
                 chavesAltoRisco,
                 new BigDecimal("1000.00"),
-                new BigDecimal("5000.00")
-        );
+                new BigDecimal("5000.00"));
     }
 
     @Bean
@@ -27,17 +28,9 @@ public class SegurancaConfig {
     }
 
     @Bean
-    public BiometriaService biometriaService() {
-        return new BiometriaService();
-    }
-
-    @Bean
     public CruzamentoDadosService cruzamentoDadosService() {
         return new CruzamentoDadosService(
                 new HashMap<>(),
-                new HashMap<>(),
-                new HashMap<>(),
-                new HashMap<>()
-        );
+                new HashMap<>());
     }
 }

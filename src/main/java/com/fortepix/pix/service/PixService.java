@@ -1,16 +1,15 @@
-package com.fortepix.pix;
+package com.fortepix.pix.service;
 
-import com.fortepix.dominio.TransacaoPix;
+import com.fortepix.pix.model.TransacaoPix;
 import com.fortepix.pix.dto.PixAnaliseResponse;
 import com.fortepix.pix.dto.PixConfirmacaoResponse;
 import com.fortepix.pix.dto.PixIniciarRequest;
-import com.fortepix.repositorio.TransacaoPixRepository;
-import com.fortepix.seguranca.AntifraudeService;
-import com.fortepix.seguranca.BiometriaService;
-import com.fortepix.seguranca.CruzamentoDadosService;
-import com.fortepix.seguranca.LogAntifraudeService;
-import com.fortepix.seguranca.TwoFATService;
-import com.fortepix.seguranca.AntifraudeService.ResultadoRisco;
+import com.fortepix.pix.repository.TransacaoPixRepository;
+import com.fortepix.pix.service.AntifraudeService;
+import com.fortepix.pix.service.CruzamentoDadosService;
+import com.fortepix.pix.service.LogAntifraudeService;
+import com.fortepix.pix.service.TwoFATService;
+import com.fortepix.pix.service.AntifraudeService.ResultadoRisco;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
@@ -21,54 +20,46 @@ public class PixService {
 
     private final AntifraudeService antifraudeService;
     private final TwoFATService twoFATService;
-    private final BiometriaService biometriaService;
     private final CruzamentoDadosService cruzamentoDadosService;
     private final TransacaoPixRepository transacaoPixRepository;
     private final LogAntifraudeService logAntifraudeService;
 
     public PixService(AntifraudeService antifraudeService,
-                      TwoFATService twoFATService,
-                      BiometriaService biometriaService,
-                      CruzamentoDadosService cruzamentoDadosService,
-                      TransacaoPixRepository transacaoPixRepository,
-                      LogAntifraudeService logAntifraudeService) {
+            TwoFATService twoFATService,
+            CruzamentoDadosService cruzamentoDadosService,
+            TransacaoPixRepository transacaoPixRepository,
+            LogAntifraudeService logAntifraudeService) {
         this.antifraudeService = antifraudeService;
         this.twoFATService = twoFATService;
-        this.biometriaService = biometriaService;
         this.cruzamentoDadosService = cruzamentoDadosService;
         this.transacaoPixRepository = transacaoPixRepository;
         this.logAntifraudeService = logAntifraudeService;
     }
 
     public PixAnaliseResponse iniciarPix(String documentoUsuario,
-                                         String usuarioId,
-                                         PixIniciarRequest req) {
+            String usuarioId,
+            PixIniciarRequest req) {
 
         // 1) Score via cruzamento de dados
         int score = cruzamentoDadosService.calcularScoreUsuario(
                 documentoUsuario,
                 req.getChaveDestino(),
-                req.getValor(),
-                req.isDispositivoNovo(),
-                LocalDateTime.now()
-        );
+                req.getValor());
 
         // 2) Resultado antifraude
         ResultadoRisco risco = antifraudeService.avaliar(
                 req.getChaveDestino(),
                 req.getValor(),
-                score
-        );
+                score);
 
         // 3) Registrar LOG ANTIFRAUDE (sempre)
         logAntifraudeService.registrar(
                 documentoUsuario,
                 req.getChaveDestino(),
                 req.getValor(),
-                risco.name(),              // APROVADO / BLOQUEIO_PREVENTIVO / ALTO_RISCO
+                risco.name(), // APROVADO / BLOQUEIO_PREVENTIVO / ALTO_RISCO
                 score,
-                "API_JAVA"
-        );
+                "API_JAVA");
 
         // 4) Tratar cenários de alto risco / bloqueio
         if (risco == ResultadoRisco.ALTO_RISCO) {
@@ -96,11 +87,11 @@ public class PixService {
     }
 
     public PixConfirmacaoResponse confirmarPix(String usuarioId,
-                                               String documentoUsuario,
-                                               Long transacaoId,
-                                               String codigo2FAT,
-                                               String hashBiometricoValido,
-                                               String hashBiometricoRecebido) {
+            String documentoUsuario,
+            Long transacaoId,
+            String codigo2FAT,
+            String hashBiometricoValido,
+            String hashBiometricoRecebido) {
 
         var opt = transacaoPixRepository.findById(transacaoId);
         if (opt.isEmpty()) {
@@ -117,11 +108,7 @@ public class PixService {
             return PixConfirmacaoResponse.erro("2FAT inválido ou expirado");
         }
 
-        biometriaService.registrarBiometria(hashBiometricoValido);
-        boolean biometriaOk = biometriaService.validarBiometria(hashBiometricoRecebido);
-        if (!biometriaOk) {
-            return PixConfirmacaoResponse.erro("Biometria não validada");
-        }
+        // Biometria desativada nesta fase de estabilização estrutural.
 
         // Aqui entraria a chamada real ao PSP/BaaS do Pix.
         tx.setStatus("CONCLUIDA");

@@ -1,7 +1,8 @@
-package com.fortepix.api.pix;
+package com.fortepix.pix.controller;
 
-import com.fortepix.api.seguranca.TwoFatService;
-import com.fortepix.api.seguranca.BiometriaService;
+import com.fortepix.pix.service.AntifraudeService;
+import com.fortepix.pix.dto.PixRequest;
+import com.fortepix.pix.dto.PixResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,20 +11,14 @@ import org.springframework.web.bind.annotation.*;
 public class PixController {
 
     private final AntifraudeService antifraudeService;
-    private final TwoFatService twoFatService;
-    private final BiometriaService biometriaService;
 
-    public PixController(AntifraudeService antifraudeService,
-                         TwoFatService twoFatService,
-                         BiometriaService biometriaService) {
+    public PixController(AntifraudeService antifraudeService) {
         this.antifraudeService = antifraudeService;
-        this.twoFatService = twoFatService;
-        this.biometriaService = biometriaService;
     }
 
     @PostMapping("/enviar")
     public ResponseEntity<PixResponse> enviarPix(@RequestBody PixRequest request) {
-        var risco = antifraudeService.avaliarRisco(request.getChaveDestino(), request.getValor());
+        var risco = antifraudeService.avaliar(request.getChaveDestino(), request.getValor(), 50);
 
         if (risco == AntifraudeService.ResultadoRisco.ALTO_RISCO) {
             return ResponseEntity.ok(new PixResponse("NEGADO", "ALTO_RISCO_ANTIFRAUDE", request.getValor()));

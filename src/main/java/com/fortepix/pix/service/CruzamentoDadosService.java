@@ -1,4 +1,4 @@
-package com.fortepix.seguranca;
+package com.fortepix.pix.service;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -9,7 +9,7 @@ public class CruzamentoDadosService {
     private final Map<String, Integer> historicoTentativasFraude;
 
     public CruzamentoDadosService(Map<String, Integer> historicoScores,
-                                  Map<String, Integer> historicoTentativasFraude) {
+            Map<String, Integer> historicoTentativasFraude) {
         this.historicoScores = historicoScores;
         this.historicoTentativasFraude = historicoTentativasFraude;
     }
@@ -23,8 +23,10 @@ public class CruzamentoDadosService {
 
         int scoreFinal = base + ajusteFraude + ajusteValor;
 
-        if (scoreFinal < 0) scoreFinal = 0;
-        if (scoreFinal > 100) scoreFinal = 100;
+        if (scoreFinal < 0)
+            scoreFinal = 0;
+        if (scoreFinal > 100)
+            scoreFinal = 100;
 
         return scoreFinal;
     }
